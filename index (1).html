@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>송전 전압에 따른 손실 비교 계산기 | 지기 프로젝트</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --line:#334155;
+    --text:#e2e8f0; --sub:#94a3b8; --accent:#38bdf8; --warn:#f87171;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    line-height:1.7;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:32px 20px 80px;}
+  header{border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:32px;}
+  h1{font-size:26px; margin:0 0 8px;}
+  .sub{color:var(--sub); font-size:15px; margin:0;}
+  h2{font-size:20px; margin:40px 0 12px; padding-left:10px; border-left:4px solid var(--accent);}
+  h3{font-size:16px; margin:24px 0 8px; color:var(--accent);}
+  p{margin:8px 0;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; margin-top:16px;}
+  label{display:block; font-size:14px; color:var(--sub); margin-bottom:6px;}
+  input{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line);
+    background:#0b1220; color:var(--text); font-size:15px;
+  }
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px;}
+  button{
+    margin-top:16px; padding:11px 20px; border:0; border-radius:8px;
+    background:var(--accent); color:#06283d; font-weight:700; font-size:15px; cursor:pointer;
+  }
+  button:hover{opacity:.88;}
+  .msg{color:var(--warn); font-size:14px; min-height:20px; margin-top:10px;}
+  .out{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-top:18px;}
+  .out div{background:#0b1220; border:1px solid var(--line); border-radius:10px; padding:14px;}
+  .out span{display:block; font-size:13px; color:var(--sub);}
+  .out strong{font-size:20px; color:var(--accent);}
+  table{width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;}
+  th,td{border:1px solid var(--line); padding:9px 10px; text-align:right;}
+  th{background:#0b1220; color:var(--sub); text-align:center;}
+  td:first-child{text-align:center;}
+  .bar{height:10px; background:var(--accent); border-radius:5px;}
+  .note{font-size:13px; color:var(--sub);}
+  footer{margin-top:56px; border-top:1px solid var(--line); padding-top:16px; font-size:13px; color:var(--sub);}
+  code{background:#0b1220; padding:2px 6px; border-radius:4px; font-size:13px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>송전 전압에 따른 손실 비교 계산기</h1>
+  <p class="sub">지기 프로젝트 · 20107 김도윤 · 같은 전력을 보낼 때 송전 전압과 전선 저항이 전력 손실에 주는 영향</p>
+</header>
+
+<h2>1. 탐구 질문</h2>
+<p>같은 전력을 보낼 때, 송전 전압과 전선의 저항에 따라 전력 손실은 얼마나 달라질까?</p>
+<p>높은 전압으로 전기를 보내면 손실이 줄어든다는 설명을 글로만 이해하기 어려워, 입력값을 바꾸며 직접 계산할 수 있는 웹사이트를 만들었다.</p>
+
+<h2>2. 계산에 사용한 관계식</h2>
+<div class="card">
+  <p><code>전류 I = 송전 전력 P ÷ 송전 전압 V</code></p>
+  <p><code>손실 전력 P손실 = I² × 전선 저항 R</code></p>
+  <p><code>손실률 = (P손실 ÷ P) × 100</code></p>
+  <p class="note">전선의 저항에 의한 손실만 다루는 단순화된 모형이며, 실제 송전에서 고려되는 다른 조건은 포함하지 않았다.</p>
+</div>
+
+<h2>3. 손실 계산기</h2>
+<div class="card">
+  <div class="grid">
+    <div>
+      <label for="p">송전 전력 P (kW)</label>
+      <input id="p" type="number" value="1000" min="0.0001" step="any">
+    </div>
+    <div>
+      <label for="v">송전 전압 V (kV)</label>
+      <input id="v" type="number" value="22.9" min="0.0001" step="any">
+    </div>
+    <div>
+      <label for="r">전선 저항 R (Ω)</label>
+      <input id="r" type="number" value="5" min="0" step="any">
+    </div>
+  </div>
+  <button onclick="calc()">계산하기</button>
+  <p class="msg" id="msg"></p>
+  <div class="out">
+    <div><span>전류 I</span><strong id="oI">-</strong></div>
+    <div><span>손실 전력</span><strong id="oL">-</strong></div>
+    <div><span>손실률</span><strong id="oP">-</strong></div>
+    <div><span>도착 전력</span><strong id="oA">-</strong></div>
+  </div>
+</div>
+
+<h2>4. 조건별 비교</h2>
+
+<h3>(1) 전압을 바꾼 경우</h3>
+<p class="note">위에 입력한 전력과 저항을 그대로 두고, 송전 전압만 바꾸어 계산한 결과이다.</p>
+<table id="tblV"></table>
+
+<h3>(2) 전선 저항을 바꾼 경우</h3>
+<p class="note">위에 입력한 전력과 전압을 그대로 두고, 전선 저항만 바꾸어 계산한 결과이다.</p>
+<table id="tblR"></table>
+
+<h2>5. 탐구 결과</h2>
+<div class="card">
+  <p>계산 결과, 송전 전력과 전선 저항이 같을 때 송전 전압을 높일수록 전류가 작아지고 손실 전력은 크게 줄어들었다. 손실 전력이 전류의 제곱에 비례하므로, 전압을 2배로 하면 전류는 절반이 되고 손실 전력은 약 4분의 1로 줄어드는 것을 수치로 확인할 수 있었다.</p>
+  <p>반면 전압과 전력을 같게 두고 전선 저항만 바꾸면 손실 전력은 저항에 비례하여 변했다. 따라서 송전 손실을 줄이려면 전압을 높이는 것이 저항을 줄이는 것보다 효과가 크게 나타났다.</p>
+  <p class="note">한계: 전선 저항에 의한 손실만 계산한 단순화된 모형이므로 실제 송전 설비의 조건은 반영하지 않았다.</p>
+</div>
+
+<h2>6. 공유와 개선</h2>
+<div class="card">
+  <p>제작한 웹사이트를 GitHub Pages로 공개하고 친구들에게 링크를 공유하여 직접 사용해 보도록 하였다. 받은 의견과 수정한 내용을 아래에 기록한다.</p>
+  <p class="note">(사용 후 받은 의견과 수정 내용을 이 부분에 작성)</p>
+</div>
+
+<footer>지기 프로젝트 · 20107 김도윤 · HTML, CSS, JavaScript로 제작</footer>
+
+</div>
+
+<script>
+function num(id){ return parseFloat(document.getElementById(id).value); }
+
+function core(P_kW, V_kV, R){
+  var P = P_kW * 1000;        // W
+  var V = V_kV * 1000;        // V
+  var I = P / V;              // A
+  var loss = I * I * R;       // W
+  return { I:I, loss:loss, rate: loss / P * 100, arrive: P - loss };
+}
+
+function fmt(n, d){
+  return n.toLocaleString('ko-KR', {maximumFractionDigits: d, minimumFractionDigits: d});
+}
+
+function calc(){
+  var P = num('p'), V = num('v'), R = num('r');
+  var msg = document.getElementById('msg');
+
+  if (isNaN(P) || isNaN(V) || isNaN(R)) {
+    msg.textContent = '세 칸에 모두 숫자를 입력해 주세요.'; return;
+  }
+  if (P <= 0 || V <= 0) {
+    msg.textContent = '송전 전력과 송전 전압은 0보다 커야 합니다.'; return;
+  }
+  if (R < 0) {
+    msg.textContent = '전선 저항은 0보다 작을 수 없습니다.'; return;
+  }
+  msg.textContent = '';
+
+  var r = core(P, V, R);
+  document.getElementById('oI').textContent = fmt(r.I, 2) + ' A';
+  document.getElementById('oL').textContent = fmt(r.loss / 1000, 2) + ' kW';
+  document.getElementById('oP').textContent = fmt(r.rate, 2) + ' %';
+  document.getElementById('oA').textContent = fmt(r.arrive / 1000, 2) + ' kW';
+
+  buildV(P, V, R);
+  buildR(P, V, R);
+}
+
+function row(label, r, maxLoss){
+  var w = maxLoss > 0 ? (r.loss / maxLoss * 100) : 0;
+  return '<tr><td>' + label + '</td><td>' + fmt(r.I,2) + '</td><td>' +
+         fmt(r.loss/1000,2) + '</td><td>' + fmt(r.rate,2) + '</td>' +
+         '<td><div class="bar" style="width:' + w + '%"></div></td></tr>';
+}
+
+function head(first){
+  return '<tr><th>' + first + '</th><th>전류 (A)</th><th>손실 전력 (kW)</th><th>손실률 (%)</th><th>손실 비교</th></tr>';
+}
+
+function buildV(P, V, R){
+  var list = [V*0.5, V, V*2, V*4, V*10];
+  var rows = list.map(function(v){ return {v:v, r:core(P, v, R)}; });
+  var max = Math.max.apply(null, rows.map(function(x){ return x.r.loss; }));
+  document.getElementById('tblV').innerHTML =
+    head('송전 전압 (kV)') + rows.map(function(x){ return row(fmt(x.v,2), x.r, max); }).join('');
+}
+
+function buildR(P, V, R){
+  var base = R > 0 ? R : 1;
+  var list = [base*0.5, base, base*2, base*4, base*10];
+  var rows = list.map(function(rr){ return {rr:rr, r:core(P, V, rr)}; });
+  var max = Math.max.apply(null, rows.map(function(x){ return x.r.loss; }));
+  document.getElementById('tblR').innerHTML =
+    head('전선 저항 (Ω)') + rows.map(function(x){ return row(fmt(x.rr,2), x.r, max); }).join('');
+}
+
+calc();
+</script>
+</body>
+</html>
