@@ -16,11 +16,4 @@
 HTML, CSS, JavaScript (추가 설치 없이 브라우저에서 실행)
 
 ## 공개 주소
-GitHub Pages: (저장소 설정 후 주소 입력)
-
-## 올리는 방법
-1. GitHub에서 새 저장소(repository)를 만든다. (Public)
-2. index.html 과 README.md 파일을 업로드하고 Commit 한다.
-3. 저장소의 Settings → Pages 로 들어간다.
-4. Source 를 "Deploy from a branch", Branch 를 "main / (root)" 로 지정하고 Save 한다.
-5. 잠시 뒤 생성되는 주소로 접속하면 사이트가 열린다
+GitHub Pages: https://ehdbs86084769-bot.github.io/power-loss-calculator/
